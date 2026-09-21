@@ -7,6 +7,10 @@ echo "openstack-dev-tools: running setup-base..."
 apt-get update
 apt-get install -y software-properties-common
 
+# ── Add Ubuntu Cloud Archive tools PPA ──────────────────────────────────
+add-apt-repository -y ppa:ubuntu-cloud-archive/tools
+apt-get update
+
 # ── Install shared base packages ───────────────────────────────────────
 apt-get install -y \
     python3 \
@@ -31,7 +35,8 @@ apt-get install -y \
     postgresql-client \
     memcached \
     tmux \
-    openstack-pkg-tools
+    openstack-pkg-tools \
+    cloud-archive-utils
 
 # ── Install OpenStack CLI via pip ──────────────────────────────────────
 pip3 install --break-system-packages \
