@@ -1,0 +1,34 @@
+#!/bin/bash
+set -e
+
+echo "openstack-dev-tools: running setup-project..."
+
+# ── Set up shared Python venv (idempotent) ─────────────────────────────
+VENV_DIR="/home/workshop/.openstack-venv"
+if [ ! -f "$VENV_DIR/pyvenv.cfg" ]; then
+    python3 -m venv --system-site-packages "$VENV_DIR"
+    echo "openstack-dev-tools: created shared venv at $VENV_DIR"
+else
+    echo "openstack-dev-tools: shared venv already exists at $VENV_DIR"
+fi
+
+# ── Add SDK bin to user PATH ───────────────────────────────────────────
+if ! grep -qxF "export PATH=\"\$SDK/bin:\$PATH\"" ~/.profile 2>/dev/null; then
+    cat <<'EOF' >> ~/.profile
+
+# openstack-dev-tools SDK
+export PATH="$SDK/bin:$PATH"
+EOF
+fi
+
+# ── Shell aliases ──────────────────────────────────────────────────────
+cat <<'EOF' > ~/.bash_aliases
+# openstack-dev aliases
+alias osc='openstack'
+alias os='openstack'
+EOF
+
+# ── Git config for OpenStack workflows ─────────────────────────────────
+git config --global gerrit.createchangeid true 2>/dev/null || true
+
+echo "openstack-dev-tools: setup-project complete."

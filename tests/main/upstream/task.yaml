@@ -1,0 +1,36 @@
+summary: Verify upstream OpenStack development tools are available
+
+prepare: |
+  envsubst '${BASE}' < workshop.yaml.in > workshop.yaml
+  workshop launch
+
+restore: |
+  workshop remove || true
+
+execute: |
+  workshop exec -- bash -lc '
+    set -e
+    echo "=== Checking required tools ==="
+    command -v python3
+    command -v pip3
+    command -v tox
+    command -v git
+    command -v git-review
+    command -v openstack
+    command -v bindep
+    command -v stestr
+    echo "=== Checking OpenStack CLI ==="
+    openstack --version
+    echo "=== Checking pip packages ==="
+    pip3 show openstacksdk
+    pip3 show python-openstackclient
+    echo "=== Checking shared venv ==="
+    test -f /home/workshop/.openstack-venv/pyvenv.cfg
+    echo "=== Checking workspace dirs ==="
+    test -d /home/workshop/openstack
+    test -d /home/workshop/charms
+    echo "=== Upstream tools OK ==="
+  '
+
+debug: |
+  workshop tasks

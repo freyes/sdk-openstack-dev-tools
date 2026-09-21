@@ -1,0 +1,54 @@
+#!/bin/bash
+set -e
+
+errors=()
+warnings=()
+
+# ── Required tools ─────────────────────────────────────────────────────
+check_cmd() {
+    if ! command -v "$1" >/dev/null 2>&1; then
+        errors+=("$1 not found")
+    fi
+}
+
+check_cmd python3
+check_cmd pip3
+check_cmd tox
+check_cmd git
+check_cmd git-review
+check_cmd openstack
+check_cmd bindep
+check_cmd stestr
+
+# ── Optional tools (warn only) ─────────────────────────────────────────
+check_opt() {
+    if ! command -v "$1" >/dev/null 2>&1; then
+        warnings+=("$1 not found (snapd may be unavailable)")
+    fi
+}
+
+check_opt juju
+check_opt charmcraft
+check_opt kubectl
+check_opt microk8s
+
+# ── Verify directories ─────────────────────────────────────────────────
+for d in /home/workshop/openstack /home/workshop/charms; do
+    if [ ! -d "$d" ]; then
+        errors+=("$d does not exist")
+    fi
+done
+
+# ── Report ─────────────────────────────────────────────────────────────
+for w in "${warnings[@]}"; do
+    echo "WARN: $w"
+done
+
+if [ ${#errors[@]} -gt 0 ]; then
+    for e in "${errors[@]}"; do
+        echo "ERROR: $e"
+    done
+    workshopctl set-health --code=openstack-dev-tools-check-failed error "openstack-dev-tools health check failed: ${errors[*]}"
+else
+    workshopctl set-health okay
+fi

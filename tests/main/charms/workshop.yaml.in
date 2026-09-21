@@ -1,0 +1,7 @@
+name: test-openstack-dev-charms
+base: ${BASE}
+sdks:
+  - name: try-openstack-dev-tools
+actions:
+  openstack-dev-setup: |
+    openstack-dev-setup "$@"

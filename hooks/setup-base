@@ -1,0 +1,73 @@
+#!/bin/bash
+set -e
+
+echo "openstack-dev-tools: running setup-base..."
+
+# ── Ensure universe component ──────────────────────────────────────────
+apt-get update
+apt-get install -y software-properties-common
+
+# ── Install shared base packages ───────────────────────────────────────
+apt-get install -y \
+    python3 \
+    python3-dev \
+    python3-pip \
+    python3-venv \
+    git \
+    git-review \
+    tox \
+    stestr \
+    bindep \
+    build-essential \
+    jq \
+    curl \
+    wget \
+    vim \
+    libssl-dev \
+    libffi-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    mariadb-client \
+    postgresql-client \
+    memcached \
+    tmux \
+    openstack-pkg-tools
+
+# ── Install OpenStack CLI via pip ──────────────────────────────────────
+pip3 install --break-system-packages \
+    openstacksdk \
+    python-openstackclient
+
+# ── Install snaps (best-effort — snapd may not be available) ──────────
+install_snap() {
+    local name="$1"
+    local args="${2:-}"
+    if command -v "$name" >/dev/null 2>&1; then
+        echo "openstack-dev-tools: $name already installed, skipping"
+        return 0
+    fi
+    # shellcheck disable=SC2086  # intentional word splitting for snap args
+    if snap install "$name" $args 2>/dev/null; then
+        echo "openstack-dev-tools: installed snap $name"
+    else
+        echo "WARN: openstack-dev-tools: snap $name install failed — snapd may not be available"
+    fi
+}
+
+install_snap juju --classic
+install_snap charmcraft --classic
+install_snap kubectl --classic
+install_snap microk8s --classic
+
+# ── System-wide PATH configuration ─────────────────────────────────────
+cat <<'EOF' > /etc/profile.d/openstack-dev.sh
+# openstack-dev-tools SDK
+PATH="$SDK/bin:$PATH"
+EOF
+
+# ── Create workspace directories ───────────────────────────────────────
+sudo -iu workshop mkdir -p \
+    /home/workshop/openstack \
+    /home/workshop/charms
+
+echo "openstack-dev-tools: setup-base complete."

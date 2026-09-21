@@ -1,0 +1,69 @@
+#!/bin/bash
+set -euo pipefail
+
+usage() {
+    cat <<EOF
+Usage: openstack-dev-setup <workflow> <project-dir>
+
+Bootstrap a Python virtual environment and development tooling for an
+OpenStack project directory.
+
+Workflows:
+  upstream    Standard OpenStack service (tox, stestr, pre-commit)
+  charm       Charmed OpenStack charm (charmcraft, ops, tox)
+
+Example:
+  openstack-dev-setup upstream openstack/nova
+  openstack-dev-setup charm charms/nova
+EOF
+}
+
+if [ $# -lt 2 ]; then
+    usage
+    exit 1
+fi
+
+WORKFLOW="$1"
+PROJECT_DIR="$2"
+VENV_DIR="/home/workshop/.openstack-venv"
+
+if [ ! -d "$PROJECT_DIR" ]; then
+    echo "ERROR: project directory '$PROJECT_DIR' does not exist"
+    exit 1
+fi
+
+case "$WORKFLOW" in
+    upstream)
+        echo "openstack-dev-setup: bootstrapping upstream project at $PROJECT_DIR"
+        cd "$PROJECT_DIR"
+
+        # Install tox in shared venv if not present
+        if [ ! -f "$VENV_DIR/bin/tox" ]; then
+            "$VENV_DIR/bin/pip" install tox stestr pre-commit
+        fi
+
+        # Install pre-commit hooks
+        if [ -f .pre-commit-config.yaml ]; then
+            "$VENV_DIR/bin/pre-commit" install --install-hooks
+        fi
+
+        echo "openstack-dev-setup: upstream project ready."
+        echo "  Run: source $VENV_DIR/bin/activate && tox -l"
+        ;;
+    charm)
+        echo "openstack-dev-setup: bootstrapping charm project at $PROJECT_DIR"
+        cd "$PROJECT_DIR"
+
+        if [ ! -f "$VENV_DIR/bin/tox" ]; then
+            "$VENV_DIR/bin/pip" install tox
+        fi
+
+        echo "openstack-dev-setup: charm project ready."
+        echo "  Run: charmcraft pack"
+        ;;
+    *)
+        echo "ERROR: unknown workflow '$WORKFLOW'"
+        usage
+        exit 1
+        ;;
+esac

@@ -1,0 +1,21 @@
+summary: Verify charm development tools are available
+
+prepare: |
+  envsubst '${BASE}' < workshop.yaml.in > workshop.yaml
+  workshop launch
+
+restore: |
+  workshop remove || true
+
+execute: |
+  workshop exec -- bash -lc '
+    set -e
+    echo "=== Checking snap-based tools (best-effort) ==="
+    command -v juju && juju version || echo "WARN: juju not available (expected in non-VM)"
+    command -v charmcraft && charmcraft --version || echo "WARN: charmcraft not available (expected in non-VM)"
+    command -v kubectl && kubectl version --client || echo "WARN: kubectl not available (expected in non-VM)"
+    echo "=== Charm tools check complete ==="
+  '
+
+debug: |
+  workshop tasks

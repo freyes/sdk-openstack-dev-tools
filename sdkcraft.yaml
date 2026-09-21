@@ -1,0 +1,36 @@
+name: openstack-dev-tools
+version: "1.0.0"
+summary: OpenStack development environment
+description: |
+  This SDK prepares a workshop for OpenStack development across four
+  workflows: upstream service development, Ubuntu package maintenance,
+  Sunbeam deployment engineering, and Charmed OpenStack charm authoring.
+
+  Use the `orange-dev-tools` SDK alongside this one for Debian packaging
+  tooling (sbuild, dput, mini-dinstall, git-ubuntu).
+license: GPL-3.0
+website: https://github.com/freyes/sdk-openstack-dev-tools
+
+platforms:
+  ubuntu@24.04:amd64:
+  ubuntu@26.04:amd64:
+
+parts:
+  openstack-dev:
+    plugin: nil
+    override-build: |
+      mkdir -p "$CRAFT_PART_INSTALL/bin"
+      install -m 0755 "$CRAFT_PROJECT_DIR/bin/openstack-dev-setup" "$CRAFT_PART_INSTALL/bin/openstack-dev-setup"
+
+plugs:
+  openstack-venv:
+    interface: mount
+    workshop-target: /home/workshop/.openstack-venv
+
+  dev-cache:
+    interface: mount
+    workshop-target: /home/workshop/.cache/openstack-dev
+
+  juju-data:
+    interface: mount
+    workshop-target: /home/workshop/.local/share/juju
