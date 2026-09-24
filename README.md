@@ -27,7 +27,7 @@ A development environment for OpenStack projects within a [Workshop](https://git
 | **Upstream dev** | `tox` `stestr` `bindep` |
 | **Packaging** | `openstack-pkg-tools` `devscripts` `dpkg-dev` `ubuntu-dev-tools` `build-essential` |
 | **Cloud Archive** | `cloud-archive-utils` (from `ppa:ubuntu-cloud-archive/tools`) |
-| **Build deps** | `libssl-dev` `libffi-dev` `libxml2-dev` `libxslt1-dev` |
+| **Build deps** | `libssl-dev` `libffi-dev` `libxml2-dev` `libxslt1-dev` `apache2-dev` |
 | **Databases** | `mariadb-client` `postgresql-client` `memcached` |
 | **Git** | `git` `git-review` |
 | **Utilities** | `jq` `curl` `wget` `vim` `tmux` |

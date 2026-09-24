@@ -31,6 +31,7 @@ apt-get install -y \
     libffi-dev \
     libxml2-dev \
     libxslt1-dev \
+    apache2-dev \
     mariadb-client \
     postgresql-client \
     memcached \
