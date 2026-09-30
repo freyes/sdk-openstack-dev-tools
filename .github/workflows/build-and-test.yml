@@ -1,0 +1,35 @@
+name: Build and test
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install LXD
+        run: |
+          sudo snap install lxd
+          sudo lxd init --auto
+          sudo usermod --append --groups lxd "$USER"
+
+      - name: Verify LXD access
+        run: |
+          sg lxd -c 'lxc version'
+          # KVM is required because the spread tests use vm:true
+          ls -l /dev/kvm || true
+
+      - name: Install sdkcraft
+        run: sudo snap install sdkcraft --classic
+
+      - name: Pack SDK
+        run: sdkcraft pack -v
+
+      - name: Test SDK
+        run: sg lxd -c 'sdkcraft test -v'

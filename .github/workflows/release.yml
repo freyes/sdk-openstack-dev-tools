@@ -1,0 +1,42 @@
+name: Release to latest/edge
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install sdkcraft
+        run: sudo snap install sdkcraft --classic
+
+      - uses: canonical/setup-lxd@main
+        with:
+          group: lxd
+
+      - name: Add user to lxd group
+        run: |
+          sudo usermod -aG lxd $USER
+
+      - name: Pack SDK
+        run: |
+          mkdir -p dist
+          sg lxd -c "sdkcraft pack -v -o dist"
+
+      - name: Upload and release to latest/edge
+        env:
+          SDKCRAFT_STORE_CREDENTIALS: ${{ secrets.SDKCRAFT_STORE_CREDENTIALS }}
+        run: |
+          shopt -s nullglob
+          for sdk in dist/*.sdk; do
+            echo "Releasing $sdk to latest/edge"
+            sdkcraft upload "$sdk" --release latest/edge
+          done
