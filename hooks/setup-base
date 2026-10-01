@@ -66,11 +66,6 @@ cat <<'EOF' > /etc/profile.d/openstack-dev.sh
 PATH="$SDK/bin:$PATH"
 EOF
 
-# ── Create workspace directories ───────────────────────────────────────
-sudo -iu workshop mkdir -p \
-    /home/workshop/openstack \
-    /home/workshop/charms
-
 # ── Install pipx ───────────────────────────────────────────────────────
 apt-get install -y pipx
 
