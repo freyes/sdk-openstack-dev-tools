@@ -31,4 +31,17 @@ EOF
 # ── Git config for OpenStack workflows ─────────────────────────────────
 git config --global gerrit.createchangeid true 2>/dev/null || true
 
+# ── Configure pip to use devpi mirror (idempotent) ────────────────────
+mkdir -p ~/.pip
+if ! grep -q 'localhost:3141' ~/.pip/pip.conf 2>/dev/null; then
+    cat <<'EOF' > ~/.pip/pip.conf
+[global]
+index-url = http://localhost:3141/root/pypi/+simple/
+trusted-host = localhost
+
+[search]
+index = http://localhost:3141/root/pypi/
+EOF
+fi
+
 echo "openstack-dev-tools: setup-project complete."
