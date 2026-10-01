@@ -14,6 +14,7 @@ A development environment for OpenStack projects within a [Workshop](https://git
 - **Persistent caches** — tox, pip, and pre-commit caches survive refreshes
 - **Shell integration** — PATH, bash completions, and aliases configured automatically
 - **Health checks** — `workshopctl set-health` integration verifies all tools on launch
+- **devpi PyPI mirror** — local caching PyPI mirror via devpi, auto-started at boot
 
 ---
 
@@ -188,6 +189,8 @@ tox -e integration
 | `/home/workshop/.openstack-venv` | Shared Python virtual environment (persisted) |
 | `/home/workshop/.cache/openstack-dev` | tox/pip/pre-commit caches (persisted) |
 | `/home/workshop/.local/share/juju` | Juju credentials and model data (persisted) |
+| `/home/workshop/.devpi` | devpi server data — package index and cached packages (persisted via plug) |
+| `~/.pip/pip.conf` | Pip configuration — points to local devpi PyPI mirror at localhost:3141 |
 | `/home/workshop/openstack/` | Workspace for upstream service repos |
 | `/home/workshop/charms/` | Workspace for charm repos |
 
@@ -209,6 +212,11 @@ tox -e integration
 - **Interface:** `mount`
 - **Workshop target:** `/home/workshop/.local/share/juju`
 - **Purpose:** Persists Juju client data — credentials, controller connections, and model state — across workshop refreshes.
+
+### `devpi-data`
+- **Interface:** `mount`
+- **Workshop target:** `/home/workshop/.devpi`
+- **Purpose:** Persists the devpi PyPI caching mirror package index across workshop updates and refreshes.
 
 ---
 
