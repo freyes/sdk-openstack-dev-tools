@@ -44,4 +44,14 @@ index = http://localhost:3141/root/pypi/
 EOF
 fi
 
+# ── Configure uv to use devpi mirror (idempotent) ──────────────────────
+mkdir -p ~/.config/uv
+if ! grep -q 'localhost:3141' ~/.config/uv/uv.toml 2>/dev/null; then
+    cat <<'EOF' > ~/.config/uv/uv.toml
+[[index]]
+url = "http://localhost:3141/root/pypi/+simple/"
+default = true
+EOF
+fi
+
 echo "openstack-dev-tools: setup-project complete."

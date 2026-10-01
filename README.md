@@ -191,6 +191,7 @@ tox -e integration
 | `/home/workshop/.local/share/juju` | Juju credentials and model data (persisted) |
 | `/home/workshop/.devpi` | devpi server data — package index and cached packages (persisted via plug) |
 | `~/.pip/pip.conf` | Pip configuration — points to local devpi PyPI mirror at localhost:3141 |
+| `~/.config/uv/uv.toml` | uv configuration — points to local devpi PyPI mirror at localhost:3141 |
 | `/home/workshop/openstack/` | Workspace for upstream service repos |
 | `/home/workshop/charms/` | Workspace for charm repos |
 
