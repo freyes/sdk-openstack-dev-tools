@@ -1,0 +1,25 @@
+summary: Verify devpi PyPI mirror is running and pip is configured
+
+prepare: |
+  envsubst '${BASE}' < workshop.yaml.in > workshop.yaml
+  workshop launch
+
+restore: |
+  workshop remove || true
+
+execute: |
+  workshop exec -- bash -lc '
+    set -e
+    echo "=== Checking devpi service ==="
+    systemctl is-active devpi
+    curl -sf http://localhost:3141/ | grep -q devpi
+    echo "=== Checking pip config ==="
+    pip config get global.index-url | grep -q localhost:3141
+    echo "=== Testing pip install through devpi ==="
+    pip download --no-deps -d /tmp six
+    test -f /tmp/six-*.whl || test -f /tmp/six-*.tar.gz
+    echo "=== Devpi test OK ==="
+  '
+
+debug: |
+  workshop tasks
