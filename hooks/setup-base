@@ -56,8 +56,9 @@ install_snap() {
 
 install_snap juju --classic
 install_snap charmcraft --classic
+install_snap snapcraft --classic
 install_snap kubectl --classic
-install_snap microk8s --classic
+install_snap k8s --classic
 
 # ── System-wide PATH configuration ─────────────────────────────────────
 cat <<'EOF' > /etc/profile.d/openstack-dev.sh
