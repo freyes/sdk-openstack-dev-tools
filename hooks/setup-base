@@ -76,4 +76,46 @@ sudo -iu workshop mkdir -p \
     /home/workshop/openstack \
     /home/workshop/charms
 
+# ── Install pipx ───────────────────────────────────────────────────────
+apt-get install -y pipx
+
+# ── Start devpi at boot ─────────────────────────────────────────────────
+if ! pipx list --short | grep -q devpi-server; then
+    sudo -iu workshop pipx install devpi-server
+else
+    echo "openstack-dev-tools: devpi-server already installed, skipping"
+fi
+
+if ! pipx list --short | grep -q devpi-web; then
+    sudo -iu workshop pipx install devpi-web
+else
+    echo "openstack-dev-tools: devpi-web already installed, skipping"
+fi
+
+# ── Initialize devpi serverdir (idempotent) ─────────────────────────────
+if [ ! -f /home/workshop/.devpi/.nodeinfo ]; then
+    sudo -iu workshop devpi-init --serverdir /home/workshop/.devpi
+fi
+
+# ── Configure devpi systemd service ─────────────────────────────────────
+cat <<'EOF' > /etc/systemd/system/devpi.service
+[Unit]
+Description=Devpi Server
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+Restart=on-success
+ExecStart=/home/workshop/.local/bin/devpi-server --host 0.0.0.0 --port 3141 --serverdir /home/workshop/.devpi
+User=workshop
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable devpi.service
+systemctl start devpi.service
+
 echo "openstack-dev-tools: setup-base complete."
