@@ -38,11 +38,6 @@ apt-get install -y \
     openstack-pkg-tools \
     cloud-archive-utils
 
-# ── Install OpenStack CLI via pip ──────────────────────────────────────
-pip3 install --break-system-packages \
-    openstacksdk \
-    python-openstackclient
-
 # ── Install snaps (best-effort — snapd may not be available) ──────────
 install_snap() {
     local name="$1"
