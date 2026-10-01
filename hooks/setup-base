@@ -20,8 +20,7 @@ apt-get install -y \
     git \
     git-review \
     tox \
-    stestr \
-    bindep \
+    python3-stestr \
     build-essential \
     jq \
     curl \
@@ -78,6 +77,13 @@ sudo -iu workshop mkdir -p \
 
 # ── Install pipx ───────────────────────────────────────────────────────
 apt-get install -y pipx
+
+# ── Install bindep via pipx ────────────────────────────────────────────
+if ! pipx list --short | grep -q bindep; then
+    sudo -iu workshop pipx install bindep
+else
+    echo "openstack-dev-tools: bindep already installed, skipping"
+fi
 
 # ── Start devpi at boot ─────────────────────────────────────────────────
 if ! pipx list --short | grep -q devpi-server; then

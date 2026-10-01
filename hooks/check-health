@@ -17,8 +17,11 @@ check_cmd tox
 check_cmd git
 check_cmd git-review
 check_cmd openstack
-check_cmd bindep
 check_cmd stestr
+
+if [ ! -x /home/workshop/.local/bin/bindep ]; then
+    errors+=("bindep not found")
+fi
 
 if [ ! -x /home/workshop/.local/bin/devpi-server ]; then
     errors+=("devpi-server not found")
