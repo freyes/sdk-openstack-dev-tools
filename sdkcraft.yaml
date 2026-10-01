@@ -34,3 +34,7 @@ plugs:
   juju-data:
     interface: mount
     workshop-target: /home/workshop/.local/share/juju
+
+  devpi-data:
+    interface: mount
+    workshop-target: /home/workshop/.devpi
