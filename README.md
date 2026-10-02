@@ -47,7 +47,7 @@ A development environment for OpenStack projects within a [Workshop](https://git
 | `juju` | `--classic` | Charmed Operator Lifecycle Manager |
 | `charmcraft` | `--classic` | Build and publish charms |
 | `kubectl` | `--classic` | Kubernetes CLI |
-| `microk8s` | `--classic` | Lightweight Kubernetes |
+| `k8s` | `--classic` | Lightweight Kubernetes |
 
 All snap installs are **best-effort** — they warn but do not fail if snapd is unavailable (e.g., in a container backend).
 

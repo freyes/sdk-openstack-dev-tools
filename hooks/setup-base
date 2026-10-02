@@ -54,6 +54,7 @@ install_snap() {
     fi
 }
 
+install_snap openstackclients
 install_snap juju --classic
 install_snap charmcraft --classic
 install_snap snapcraft --classic

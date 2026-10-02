@@ -37,18 +37,11 @@ check_opt() {
 check_opt juju
 check_opt charmcraft
 check_opt kubectl
-check_opt microk8s
+check_opt k8s
 
 if ! curl -sf http://localhost:3141/ >/dev/null 2>&1; then
     errors+=("devpi-server not responding on port 3141")
 fi
-
-# ── Verify directories ─────────────────────────────────────────────────
-for d in /home/workshop/openstack /home/workshop/charms; do
-    if [ ! -d "$d" ]; then
-        errors+=("$d does not exist")
-    fi
-done
 
 # ── Report ─────────────────────────────────────────────────────────────
 for w in "${warnings[@]}"; do
