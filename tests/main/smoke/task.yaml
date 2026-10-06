@@ -1,0 +1,54 @@
+summary: Full smoke test — upstream tools, charm tools, and devpi mirror
+
+prepare: |
+  envsubst '${BASE}' < workshop.yaml.in > workshop.yaml
+  workshop launch
+
+restore: |
+  workshop remove || true
+
+execute: |
+  workshop exec -- bash -lc '
+    set -e
+
+    # ── Upstream dev tools ────────────────────────────────────────────
+    echo "=== Checking upstream dev tools ==="
+    command -v python3
+    command -v pip3
+    command -v tox
+    command -v git
+    command -v git-review
+    command -v openstack
+    command -v bindep
+    command -v stestr
+
+    echo "=== Checking OpenStack CLI ==="
+    openstack --version
+
+    echo "=== Checking shared venv ==="
+    test -f /home/workshop/.openstack-venv/pyvenv.cfg
+
+    # ── Charm / snap tools (best-effort) ──────────────────────────────
+    echo "=== Checking snap-based tools ==="
+    command -v juju && juju version || echo "WARN: juju not available"
+    command -v charmcraft && charmcraft --version || echo "WARN: charmcraft not available"
+    command -v kubectl && kubectl version --client || echo "WARN: kubectl not available"
+    command -v k8s && k8s version || echo "WARN: k8s not available"
+
+    # ── Devpi PyPI mirror ─────────────────────────────────────────────
+    echo "=== Checking devpi service ==="
+    systemctl is-active devpi
+    curl -sf http://localhost:3141/ | grep -q devpi
+
+    echo "=== Checking pip config ==="
+    pip config get global.index-url | grep -q localhost:3141
+
+    echo "=== Testing pip install through devpi ==="
+    pip download --no-deps -d /tmp six
+    test -f /tmp/six-*.whl || test -f /tmp/six-*.tar.gz
+
+    echo "=== Smoke test OK ==="
+  '
+
+debug: |
+  workshop tasks
