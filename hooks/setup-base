@@ -115,5 +115,7 @@ EOF
 systemctl daemon-reload
 systemctl enable devpi.service
 systemctl start devpi.service
+systemctl status devpi.service
+timeout 10s bash -c 'until nc -v -z localhost 3141; do systemctl status devpi.service; sleep 1; done'
 
 echo "openstack-dev-tools: setup-base complete."
