@@ -39,8 +39,14 @@ check_opt charmcraft
 check_opt kubectl
 check_opt k8s
 
+if ! systemctl is-active devpi.service 2>&1 >/dev/null; then
+    errors+=("devpi-server is not active")
+    systemctl status devpi.service
+fi
+
 if ! curl -sf http://localhost:3141/ >/dev/null 2>&1; then
     errors+=("devpi-server not responding on port 3141")
+    systemctl status devpi.service
 fi
 
 # ── Report ─────────────────────────────────────────────────────────────
