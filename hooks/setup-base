@@ -84,15 +84,11 @@ else
     echo "openstack-dev-tools: devpi-server already installed, skipping"
 fi
 
-if ! pipx list --short | grep -q devpi-web; then
-    sudo -iu workshop pipx install devpi-web
+# devpi-web is a devpi-server plugin, so it must live in the same venv.
+if ! sudo -iu workshop pipx runpip devpi-server show devpi-web >/dev/null 2>&1; then
+    sudo -iu workshop pipx inject devpi-server devpi-web
 else
     echo "openstack-dev-tools: devpi-web already installed, skipping"
-fi
-
-# ── Initialize devpi serverdir (idempotent) ─────────────────────────────
-if [ ! -f /home/workshop/.devpi/.nodeinfo ]; then
-    sudo -iu workshop devpi-init --serverdir /home/workshop/.devpi
 fi
 
 # ── Configure devpi systemd service ─────────────────────────────────────
@@ -105,6 +101,9 @@ After=network-online.target
 [Service]
 Type=simple
 Restart=on-success
+# The serverdir is backed by the devpi-data mount, which is only connected
+# after setup-base, so initialize it lazily when the service starts.
+ExecStartPre=/bin/sh -c 'test -f /home/workshop/.devpi/.nodeinfo || /home/workshop/.local/bin/devpi-init --serverdir /home/workshop/.devpi'
 ExecStart=/home/workshop/.local/bin/devpi-server --host 0.0.0.0 --port 3141 --serverdir /home/workshop/.devpi
 User=workshop
 
@@ -113,9 +112,7 @@ WantedBy=multi-user.target
 EOF
 
 systemctl daemon-reload
+# Started in setup-project, once the devpi-data mount is in place.
 systemctl enable devpi.service
-systemctl start devpi.service
-systemctl status devpi.service
-timeout 10s bash -c 'until nc -v -z localhost 3141; do systemctl status devpi.service; sleep 1; done'
 
 echo "openstack-dev-tools: setup-base complete."

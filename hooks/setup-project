@@ -31,6 +31,14 @@ EOF
 # ── Git config for OpenStack workflows ─────────────────────────────────
 git config --global gerrit.createchangeid true 2>/dev/null || true
 
+# ── (Re)start devpi now that the devpi-data mount is connected ─────────
+sudo systemctl restart devpi.service
+timeout 60s bash -c 'until curl -sf http://localhost:3141/ >/dev/null; do sleep 1; done' || {
+    sudo systemctl status devpi.service --no-pager || true
+    sudo journalctl -u devpi.service --no-pager -n 50 || true
+    exit 1
+}
+
 # ── Configure pip to use devpi mirror (idempotent) ────────────────────
 mkdir -p ~/.pip
 if ! grep -q 'localhost:3141' ~/.pip/pip.conf 2>/dev/null; then
