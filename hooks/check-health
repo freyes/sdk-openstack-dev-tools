@@ -58,7 +58,7 @@ if [ ${#errors[@]} -gt 0 ]; then
     for e in "${errors[@]}"; do
         echo "ERROR: $e"
     done
-    workshopctl set-health --code=openstack-dev-tools-check-failed error "openstack-dev-tools health check failed: ${errors[*]}"
+    workshopctl set-health --code=openstack-dev-check-failed error "openstack-dev-tools health check failed: ${errors[*]}"
 else
     workshopctl set-health okay
 fi
