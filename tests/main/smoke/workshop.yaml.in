@@ -1,4 +1,4 @@
-name: test-openstack-dev-upstream
+name: test-openstack-dev-smoke
 base: ${BASE}
 sdks:
   - name: try-openstack-dev-tools

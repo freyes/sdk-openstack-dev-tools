@@ -13,11 +13,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install LXD
+      - uses: canonical/setup-lxd@main
+        with:
+          group: lxd
+
+      - name: Add user to lxd group
         run: |
-          sudo snap install lxd
-          sudo lxd init --auto
-          sudo usermod --append --groups lxd "$USER"
+          sudo usermod -aG lxd $USER
 
       - name: Verify LXD access
         run: |
@@ -29,7 +31,7 @@ jobs:
         run: sudo snap install sdkcraft --classic
 
       - name: Pack SDK
-        run: sdkcraft pack -v
+        run: sg lxd -c 'sdkcraft pack -v'
 
       - name: Test SDK
         run: sg lxd -c 'sdkcraft test -v'
