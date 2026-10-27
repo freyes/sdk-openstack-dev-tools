@@ -101,6 +101,8 @@ After=network-online.target
 [Service]
 Type=simple
 Restart=on-success
+MemoryHigh=400M
+MemoryMax=500M
 # The serverdir is backed by the devpi-data mount, which is only connected
 # after setup-base, so initialize it lazily when the service starts.
 ExecStartPre=/bin/sh -c 'test -f /home/workshop/.devpi/.nodeinfo || /home/workshop/.local/bin/devpi-init --serverdir /home/workshop/.devpi'
