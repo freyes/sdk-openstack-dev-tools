@@ -102,11 +102,19 @@ After=network-online.target
 Type=simple
 Restart=on-failure
 RestartSec=5
+TimeoutStartSec=150
 MemoryHigh=1G
 MemoryMax=2G
-# The serverdir is backed by the devpi-data mount, which is only connected
-# after setup-base, so initialize it lazily when the service starts.
-ExecStartPre=/bin/sh -c 'test -f /home/workshop/.devpi/.nodeinfo || /home/workshop/.local/bin/devpi-init --serverdir /home/workshop/.devpi'
+# The serverdir is backed by the devpi-data mount, which is attached
+# externally by the workshop tooling and can appear seconds after the
+# service starts. Wait for the mount before touching the serverdir,
+# otherwise devpi initializes the transient underlay and the late-attached
+# mount gets poisoned (https://github.com/freyes/sdk-openstack-dev-tools/issues/3).
+ExecStartPre=/bin/sh -c 'for i in $(seq 1 120); do mountpoint -q /home/workshop/.devpi && exit 0; sleep 1; done; echo "timed out waiting for the devpi-data mount" >&2; exit 1'
+# A serverdir without .serverversion is unusable (devpi-init refuses to
+# touch it), so treat its contents as garbage: wipe and re-initialize.
+# This also repairs instances already poisoned by the late-mount race.
+ExecStartPre=/bin/sh -c 'd=/home/workshop/.devpi; [ -f "$d/.serverversion" ] || { find "$d" -mindepth 1 -delete; exec /home/workshop/.local/bin/devpi-init --serverdir "$d"; }'
 ExecStart=/home/workshop/.local/bin/devpi-server --host 0.0.0.0 --port 3141 --serverdir /home/workshop/.devpi
 User=workshop
 
