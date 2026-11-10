@@ -2,6 +2,9 @@ summary: Full smoke test — upstream tools, charm tools, and devpi mirror
 
 prepare: |
   envsubst '${BASE}' < workshop.yaml.in > workshop.yaml
+  # Remove leftovers from a previously aborted variant (e.g. killed by
+  # timeout), otherwise `workshop launch` fails with "workshop exists".
+  workshop remove || true
   workshop launch
 
 restore: |
@@ -52,3 +55,11 @@ execute: |
 
 debug: |
   workshop tasks
+  workshop exec -- bash -c '
+    echo "=== processes (what is setup-base doing?) ==="
+    ps auxf || true
+    echo "=== journal tail ==="
+    sudo journalctl -b --no-pager 2>/dev/null | tail -80 || true
+    echo "=== devpi.service ==="
+    sudo systemctl status devpi.service --no-pager || true
+  ' || true
