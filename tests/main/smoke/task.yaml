@@ -1,7 +1,15 @@
 summary: Full smoke test — upstream tools, charm tools, and devpi mirror
 
+# `workshop launch` runs the full setup hooks (apt, snaps, pipx) whose
+# duration depends on external services; the default 15m kill-timeout is
+# too tight on a slow day.
+kill-timeout: 30m
+
 prepare: |
   envsubst '${BASE}' < workshop.yaml.in > workshop.yaml
+  # Remove leftovers from a previously aborted variant (e.g. killed by
+  # timeout), otherwise `workshop launch` fails with "workshop exists".
+  workshop remove || true
   workshop launch
 
 restore: |
@@ -51,4 +59,16 @@ execute: |
   '
 
 debug: |
-  workshop tasks
+  workshop tasks || true
+  # `workshop exec` refuses to run while the launch change is in progress,
+  # so inspect the workshop instance through LXD directly.
+  echo "=== lxc instances ==="
+  sudo lxc list || true
+  for i in $(sudo lxc list --format csv -c n 2>/dev/null); do
+    echo "=== $i: processes ==="
+    sudo lxc exec "$i" -- ps auxf || true
+    echo "=== $i: journal tail ==="
+    sudo lxc exec "$i" -- sh -c 'journalctl -b --no-pager | tail -60' || true
+    echo "=== $i: devpi.service ==="
+    sudo lxc exec "$i" -- systemctl status devpi.service --no-pager || true
+  done
