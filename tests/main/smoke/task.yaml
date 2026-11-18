@@ -1,4 +1,4 @@
-summary: Full smoke test — upstream tools, charm tools, and devpi mirror
+summary: Full smoke test — upstream and charm tools
 
 # `workshop launch` runs the full setup hooks (apt, snaps, pipx) whose
 # duration depends on external services; the default 15m kill-timeout is
@@ -43,15 +43,8 @@ execute: |
     command -v kubectl && kubectl version --client || echo "WARN: kubectl not available"
     command -v k8s && k8s version || echo "WARN: k8s not available"
 
-    # ── Devpi PyPI mirror ─────────────────────────────────────────────
-    echo "=== Checking devpi service ==="
-    systemctl is-active devpi
-    curl -sf http://localhost:3141/ | grep -q devpi
-
-    echo "=== Checking pip config ==="
-    pip config get global.index-url | grep -q localhost:3141
-
-    echo "=== Testing pip install through devpi ==="
+    # ── Pip stack ─────────────────────────────────────────────────────
+    echo "=== Testing pip install from PyPI ==="
     pip download --no-deps -d /tmp six
     test -f /tmp/six-*.whl || test -f /tmp/six-*.tar.gz
 
@@ -69,6 +62,4 @@ debug: |
     sudo lxc exec "$i" -- ps auxf || true
     echo "=== $i: journal tail ==="
     sudo lxc exec "$i" -- sh -c 'journalctl -b --no-pager | tail -60' || true
-    echo "=== $i: devpi.service ==="
-    sudo lxc exec "$i" -- systemctl status devpi.service --no-pager || true
   done
